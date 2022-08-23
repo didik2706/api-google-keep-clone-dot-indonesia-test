@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, CacheInterceptor, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, CacheInterceptor, UseGuards, Request, UploadedFiles } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDTO } from './dto/create-note.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller({
   path: "notes",
@@ -23,9 +23,23 @@ export class NotesController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FilesInterceptor("images"))
+  @Post(":id/images")
+  async addImages(@Param("id") id: string, @Request() req, @UploadedFiles() files: Array<Express.Multer.File>) {
+    await this.notesService.addImages(id, req.user.id, files)
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get()
-  findAll() {
-    return this.notesService.findAll();
+  async findAll(@Request() req) {
+    const notes = await this.notesService.findAll(req.user.id);
+
+    return {
+      success: true,
+      message: "notes successfully retrieved",
+      notes
+    }
   }
 
   @Get(':id')

@@ -18,7 +18,7 @@ export class NotesService {
     })
   }
 
-  async create(id: string, createNoteDto: CreateNoteDTO) {
+  async create(id: string, createNoteDto: CreateNoteDTO): Promise<void> {
     try {
       await this.noteModel.create({
         user_id: id,
@@ -30,8 +30,27 @@ export class NotesService {
     }
   }
 
-  findAll() {
-    return `This action returns all notes`;
+  async addImages(note_id: string, user_id: string, files): Promise<void> {
+    const images = files.map(d => {
+      const url = d.path.split("/");
+          url.shift();
+      const image = url.join("/");
+
+      return { image }
+    })
+
+    console.log(images);
+    
+  }
+
+  async findAll(id: string): Promise<Note[]> {
+    try {
+      return await this.noteModel.findAll({
+        where: { user_id: id }
+      })
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   findOne(id: number) {

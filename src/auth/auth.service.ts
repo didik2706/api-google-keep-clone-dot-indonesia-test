@@ -20,7 +20,7 @@ export class AuthService {
     });
   }
 
-  async register(registerDTO: RegisterDTO) {
+  async register(registerDTO: RegisterDTO): Promise<void> {
     try {
       await this.userModel.create({
         username: registerDTO.username,
