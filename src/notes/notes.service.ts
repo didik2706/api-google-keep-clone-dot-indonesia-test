@@ -1,9 +1,12 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { randomUUID } from 'crypto';
 import { CreateNoteDTO } from './dto/create-note.dto';
 import { ImagesNote } from './entities/image_note.entity';
 import { Note } from './entities/note.entity';
+import { unlinkSync } from "fs";
+import { join } from "path";
+import { UpdateNoteDTO } from './dto/update-note.dto';
 
 @Injectable()
 export class NotesService {
@@ -60,13 +63,17 @@ export class NotesService {
     }
   }
 
-  async findOne(id: string): Promise<Note> {
+  async findOne(id: string, user_id: string): Promise<Note> {
     let note = await this.noteModel.findOne({
-      where: { id },
+      where: { id, user_id },
       include: {
         model: ImagesNote
       }
     });
+
+    if (!note) {
+      throw new NotFoundException("note not found")
+    }
     
     if (note.images.length) {
       note.images.forEach(d => {
@@ -79,7 +86,67 @@ export class NotesService {
     }
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} note`;
+  async update(id: string, user_id: string, updateNoteDto: UpdateNoteDTO): Promise<void> {
+    try {
+      const note = await Note.findOne({
+        where: { id, user_id }
+      });
+  
+      if (!note) {
+        throw new NotFoundException("note not found");
+      }
+  
+      note.update({
+        title: updateNoteDto.title,
+        content: updateNoteDto.content
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async removeImage(id: number): Promise<void> {
+    try {
+      const image = await ImagesNote.findOne({
+        where: { id }
+      });
+
+      if (!image) {
+        throw new NotFoundException("note image not found");
+      }
+
+      unlinkSync(join(__dirname, "../../public/" + image.path));
+
+      await image.destroy();
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async remove(id: string, user_id: string): Promise<void> {
+    try {
+      const note = await Note.findOne({
+        where: { id, user_id },
+        include: {
+          model: ImagesNote
+        }
+      });
+
+      if (!note) {
+        throw new NotFoundException("note not found");
+      }
+  
+      if (note.images.length) {
+        note.images.forEach(d => {
+          unlinkSync(join(__dirname, "../../public/" + d.path));
+        });
+  
+        await note.destroy();
+      } else {
+        await note.destroy();
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 }

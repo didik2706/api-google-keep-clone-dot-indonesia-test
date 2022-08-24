@@ -11,6 +11,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { NotesModule } from './notes/notes.module';
 import { Note } from './notes/entities/note.entity';
 import { ImagesNote } from './notes/entities/image_note.entity';
+import { LabelsModule } from './labels/labels.module';
 config();
 
 const {
@@ -37,7 +38,8 @@ const {
       isGlobal: true
     }),
     AuthModule,
-    NotesModule
+    NotesModule,
+    LabelsModule
   ],
   controllers: [AppController],
   providers: [

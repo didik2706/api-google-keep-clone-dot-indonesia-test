@@ -11,7 +11,7 @@ export class Note extends Model {
   @Column({ allowNull: false })
   user_id: string
 
-  @Column({ allowNull: false, unique: true })
+  @Column({ allowNull: false })
   title: string
 
   @Column({ allowNull: false })
