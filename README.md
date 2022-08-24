@@ -34,6 +34,8 @@ ada beberapa fitur yang belum sempat saya buat karena dirumah saya sedang ada ga
 
 ### UNTUK E2E TEST nya belum sempat saya buat karena ada gangguan internet mulai kemarin sore dan ada kendala di OBS di laptop saya dan tidak bisa membuat video demo untuk API ini. 
 
+![OBS](obs.png)
+
 ## Installation
 
 ```bash
