@@ -26,8 +26,13 @@ export class NotesController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FilesInterceptor("images"))
   @Post(":id/images")
-  async addImages(@Param("id") id: string, @Request() req, @UploadedFiles() files: Array<Express.Multer.File>) {
-    await this.notesService.addImages(id, req.user.id, files)
+  async addImages(@Param("id") id: string, @UploadedFiles() files: Array<Express.Multer.File>) {
+    await this.notesService.addImages(id, files);
+
+    return {
+      success: true,
+      message: "note images successfully added"
+    }
   }
 
   @UseGuards(JwtAuthGuard)
@@ -43,8 +48,14 @@ export class NotesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.notesService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const note = await this.notesService.findOne(id);
+
+    return {
+      success: true,
+      message: "note successfully retrieved",
+      note
+    }
   }
 
   // @Patch(':id')
@@ -54,6 +65,6 @@ export class NotesController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.notesService.remove(+id);
+    return this.notesService.remove(id);
   }
 }

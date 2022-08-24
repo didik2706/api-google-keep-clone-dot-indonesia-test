@@ -15,6 +15,10 @@ export class NotesService {
   ){
     noteModel.beforeCreate((note, opt) => {
       note.id = randomUUID()
+    });
+
+    ImagesNote.beforeFind((opt) => {
+      opt.attributes
     })
   }
 
@@ -30,17 +34,20 @@ export class NotesService {
     }
   }
 
-  async addImages(note_id: string, user_id: string, files): Promise<void> {
-    const images = files.map(d => {
-      const url = d.path.split("/");
-          url.shift();
-      const image = url.join("/");
-
-      return { image }
-    })
-
-    console.log(images);
-    
+  async addImages(note_id: string, files): Promise<void> {
+    try {
+      const images = files.map(d => {
+        const url = d.path.split("/");
+            url.shift();
+        const path = url.join("/");
+  
+        return { path, note_id }
+      });
+  
+      await ImagesNote.bulkCreate(images);    
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   async findAll(id: string): Promise<Note[]> {
@@ -53,11 +60,26 @@ export class NotesService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} note`;
+  async findOne(id: string): Promise<Note> {
+    let note = await this.noteModel.findOne({
+      where: { id },
+      include: {
+        model: ImagesNote
+      }
+    });
+    
+    if (note.images.length) {
+      note.images.forEach(d => {
+        d.path = "http://localhost:3000/".concat(d.path)
+      })
+
+      return note;
+    } else {
+      return note
+    }
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} note`;
   }
 }
