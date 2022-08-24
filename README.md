@@ -39,10 +39,10 @@ ada beberapa fitur yang belum sempat saya buat karena dirumah saya sedang ada ga
 dan sertifikat untuk problem solving basic kemarin ada masalah waktu submit, jadi hasil testnya stack di unit test ke 10 terus timeout sendiri.
 
 Untuk sertifikat hackerrank yang bisa saya berikan hanya ini :
-https://www.hackerrank.com/certificates/c31ffc0b41b7
-https://www.hackerrank.com/certificates/6828bc57cd0d
-https://www.hackerrank.com/certificates/3f7c3457d543
-https://www.hackerrank.com/certificates/3a386fb23516
+- https://www.hackerrank.com/certificates/c31ffc0b41b7
+- https://www.hackerrank.com/certificates/6828bc57cd0d
+- https://www.hackerrank.com/certificates/3f7c3457d543
+- https://www.hackerrank.com/certificates/3a386fb23516
 
 ![Hackerrank](hackerrank.png)
 
