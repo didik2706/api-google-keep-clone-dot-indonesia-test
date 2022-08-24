@@ -1,1 +1,6 @@
-export class CreateLabelDto {}
+import { IsNotEmpty } from "class-validator";
+
+export class CreateLabelDTO {
+  @IsNotEmpty()
+  label: string
+}

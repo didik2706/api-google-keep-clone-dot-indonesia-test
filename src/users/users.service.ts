@@ -55,27 +55,27 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDTO) {
+    const user = await this.userModel.findOne({
+      where: { id }
+    });
+
+    if (!user) {
+      throw new NotFoundException("user not found");
+    }
+
+    await user.update({
+      username: updateUserDto.username,
+      name: updateUserDto.name
+    })
+  }
+
+  async remove(id: string) {
     try {
-      const user = await this.userModel.findOne({
+      await this.userModel.destroy({
         where: { id }
-      });
-  
-      if (!user) {
-        throw new NotFoundException("user not found");
-      }
-  
-      await user.update({
-        username: updateUserDto.username,
-        name: updateUserDto.name
       })
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
-  }
-
-  async remove(id: string) {
-    await this.userModel.destroy({
-      where: { id }
-    })
   }
 }

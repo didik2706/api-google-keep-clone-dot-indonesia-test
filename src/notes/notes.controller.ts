@@ -4,6 +4,7 @@ import { CreateNoteDTO } from './dto/create-note.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UpdateNoteDTO } from './dto/update-note.dto';
+import { AddLabelDTO } from './dto/add-label.dto';
 
 @Controller({
   path: "notes",
@@ -21,6 +22,17 @@ export class NotesController {
     return {
       success: true,
       message: "note successfully added"
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(":id/label")
+  async addLabel(@Param("id") id: string, @Request() req,@Body() addLabelDto: AddLabelDTO) {
+    await this.notesService.addLabel(addLabelDto, id, req.user.id);
+
+    return {
+      success: true,
+      message: "label successfully added"
     }
   }
 
@@ -68,6 +80,17 @@ export class NotesController {
     return {
       success: true,
       message: "note successfully updated"
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(":id/label/:label_id")
+  async deleteLabel(@Param() params) {
+    await this.notesService.removeLabel(params.id, params.label_id)
+
+    return {
+      success: true,
+      message: "note label successfully deleted"
     }
   }
 

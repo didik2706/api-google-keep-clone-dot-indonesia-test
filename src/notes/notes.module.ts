@@ -6,10 +6,12 @@ import { Note } from './entities/note.entity';
 import { ImagesNote } from './entities/image_note.entity';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from "multer";
+import { NoteLabel } from 'src/labels/entities/note_label.entity';
+import { Label } from 'src/labels/entities/label.entity';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Note, ImagesNote]),
+    SequelizeModule.forFeature([Note, ImagesNote, Label, NoteLabel]),
     MulterModule.register({
       storage: diskStorage({
         destination(req, file, callback) {

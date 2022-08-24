@@ -7,6 +7,9 @@ import { Note } from './entities/note.entity';
 import { unlinkSync } from "fs";
 import { join } from "path";
 import { UpdateNoteDTO } from './dto/update-note.dto';
+import { NoteLabel } from 'src/labels/entities/note_label.entity';
+import { AddLabelDTO } from './dto/add-label.dto';
+import { Label } from 'src/labels/entities/label.entity';
 
 @Injectable()
 export class NotesService {
@@ -14,7 +17,11 @@ export class NotesService {
     @InjectModel(Note)
     private noteModel: typeof Note,
     @InjectModel(ImagesNote)
-    private imagesNoteModel: typeof ImagesNote
+    private imagesNoteModel: typeof ImagesNote,
+    @InjectModel(NoteLabel)
+    private noteLabelModel: typeof NoteLabel,
+    @InjectModel(Label)
+    private labelModel: typeof Label
   ){
     noteModel.beforeCreate((note, opt) => {
       note.id = randomUUID()
@@ -35,6 +42,32 @@ export class NotesService {
     } catch (error) {
       throw new BadRequestException(error.errors[0].message)
     }
+  }
+
+  async addLabel(addLabelDto: AddLabelDTO, note_id: string, user_id: string): Promise<void> {
+    const note = await this.noteModel.findOne({
+      where: { user_id, id: note_id },
+      include: {
+        model: this.labelModel
+      }
+    });
+
+    const labels = await this.labelModel.findOne({
+      where: { id: addLabelDto.label_id, user_id }
+    })
+
+    if (!note) {
+      throw new NotFoundException("note not found")
+    } else if (note.labels.filter(d => d.id == addLabelDto.label_id).length) {
+      throw new BadRequestException("label is already exist");
+    } else if (!labels) {
+      throw new BadRequestException("user don't have this label");
+    }
+
+    await this.noteLabelModel.create({
+      note_id,
+      label_id: addLabelDto.label_id
+    });
   }
 
   async addImages(note_id: string, files): Promise<void> {
@@ -66,9 +99,14 @@ export class NotesService {
   async findOne(id: string, user_id: string): Promise<Note> {
     let note = await this.noteModel.findOne({
       where: { id, user_id },
-      include: {
-        model: ImagesNote
-      }
+      include: [
+        {
+          model: this.imagesNoteModel
+        },
+        {
+          model: Label
+        }
+      ]
     });
 
     if (!note) {
@@ -87,66 +125,66 @@ export class NotesService {
   }
 
   async update(id: string, user_id: string, updateNoteDto: UpdateNoteDTO): Promise<void> {
-    try {
-      const note = await Note.findOne({
-        where: { id, user_id }
-      });
-  
-      if (!note) {
-        throw new NotFoundException("note not found");
-      }
-  
-      note.update({
-        title: updateNoteDto.title,
-        content: updateNoteDto.content
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+    const note = await Note.findOne({
+      where: { id, user_id }
+    });
+
+    if (!note) {
+      throw new NotFoundException("note not found");
     }
+
+    note.update({
+      title: updateNoteDto.title,
+      content: updateNoteDto.content
+    });
+  }
+
+  async removeLabel(note_id: string, label_id: number):Promise<void> {
+    const noteLabel = await this.noteLabelModel.findOne({
+      where: { label_id, note_id }
+    })
+
+    if (!noteLabel) {
+      throw new NotFoundException("note label not found")
+    }
+
+    await noteLabel.destroy();
   }
 
   async removeImage(id: number): Promise<void> {
-    try {
-      const image = await ImagesNote.findOne({
-        where: { id }
-      });
+    const image = await this.imagesNoteModel.findOne({
+      where: { id }
+    });
 
-      if (!image) {
-        throw new NotFoundException("note image not found");
-      }
-
-      unlinkSync(join(__dirname, "../../public/" + image.path));
-
-      await image.destroy();
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+    if (!image) {
+      throw new NotFoundException("note image not found");
     }
+
+    unlinkSync(join(__dirname, "../../public/" + image.path));
+
+    await image.destroy();
   }
 
   async remove(id: string, user_id: string): Promise<void> {
-    try {
-      const note = await Note.findOne({
-        where: { id, user_id },
-        include: {
-          model: ImagesNote
-        }
+    const note = await Note.findOne({
+      where: { id, user_id },
+      include: {
+        model: ImagesNote
+      }
+    });
+
+    if (!note) {
+      throw new NotFoundException("note not found");
+    }
+
+    if (note.images.length) {
+      note.images.forEach(d => {
+        unlinkSync(join(__dirname, "../../public/" + d.path));
       });
 
-      if (!note) {
-        throw new NotFoundException("note not found");
-      }
-  
-      if (note.images.length) {
-        note.images.forEach(d => {
-          unlinkSync(join(__dirname, "../../public/" + d.path));
-        });
-  
-        await note.destroy();
-      } else {
-        await note.destroy();
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      await note.destroy();
+    } else {
+      await note.destroy();
     }
   }
 }

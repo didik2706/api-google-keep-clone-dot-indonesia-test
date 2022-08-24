@@ -12,6 +12,8 @@ import { NotesModule } from './notes/notes.module';
 import { Note } from './notes/entities/note.entity';
 import { ImagesNote } from './notes/entities/image_note.entity';
 import { LabelsModule } from './labels/labels.module';
+import { Label } from './labels/entities/label.entity';
+import { NoteLabel } from './labels/entities/note_label.entity';
 config();
 
 const {
@@ -28,7 +30,7 @@ const {
       username: MYSQL_USER,
       password: MYSQL_PASS,
       database: MYSQL_NAME,
-      models: [User, Note, ImagesNote],
+      models: [User, Note, ImagesNote, Label, NoteLabel],
       autoLoadModels: true
     }),
     SeederModule.forRoot({

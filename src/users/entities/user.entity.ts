@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, HasMany, Model, Table } from "sequelize-typescript";
+import { Label } from "src/labels/entities/label.entity";
 import { Note } from "src/notes/entities/note.entity";
 
 @Table
@@ -21,4 +22,7 @@ export class User extends Model {
 
   @HasMany(() => Note)
   notes: Note[]
+
+  @HasMany(() => Label)
+  labels: Label[]
 }
