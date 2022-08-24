@@ -23,8 +23,16 @@
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 ## Description
+Ini adalah API cloning dari aplikasi Google Keep, adapun fitur dari aplikasi ini adalah sebagai berikut
+- Register
+- Login
+- Add Notes
+- Add Images
+- Add Label
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+ada beberapa fitur yang belum sempat saya buat karena dirumah saya sedang ada gangguan internet yang mengakibatkan fitur tersebut saya buat.
+
+### UNTUK E2E TEST nya belum sempat saya buat karena ada gangguan internet mulai kemarin sore dan ada kendala di OBS di laptop saya dan tidak bisa membuat video demo untuk API ini. 
 
 ## Installation
 
